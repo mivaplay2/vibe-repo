@@ -2,78 +2,79 @@
 #import <Foundation/Foundation.h>
 
 #define WALLPAPER_PATH @"/var/mobile/Library/Application Support/VibeTendies/wallpaper.png"
+#define LOG_PATH @"/var/mobile/Documents/vibe.log"
 
-// ==== Объявления классов SpringBoard ====
 @interface SBFWallpaperView : UIView
 @end
-
-@interface SBIconController : UIViewController
-@end
-
 @interface SBWallpaperController : UIViewController
 @end
+@interface SBIconController : UIViewController
+@end
+@interface SBLockScreenManager : NSObject
+@end
 
-static UIImage *gImage = nil;
-
-static UIImage *loadWallpaper(void) {
-    if (gImage) return gImage;
-    if (![[NSFileManager defaultManager] fileExistsAtPath:WALLPAPER_PATH]) {
-        NSLog(@"[VibeTendies] No file at %@", WALLPAPER_PATH);
-        return nil;
-    }
-    gImage = [UIImage imageWithContentsOfFile:WALLPAPER_PATH];
-    NSLog(@"[VibeTendies] Loaded image: %@", gImage ? @"OK" : @"FAIL");
-    return gImage;
+static void vlog(NSString *s) {
+    FILE *f = fopen([LOG_PATH UTF8String], "a");
+    if (!f) return;
+    NSString *line = [NSString stringWithFormat:@"%@\n", s];
+    fwrite([line UTF8String], 1, [line lengthOfBytesUsingEncoding:NSUTF8StringEncoding], f);
+    fclose(f);
 }
 
-static void attachImageToView(UIView *host, NSString *tag) {
-    if (!host) return;
-    UIImage *img = loadWallpaper();
+static UIImage *loadImg(void) {
+    if (![[NSFileManager defaultManager] fileExistsAtPath:WALLPAPER_PATH]) {
+        vlog(@"no wallpaper file");
+        return nil;
+    }
+    UIImage *img = [UIImage imageWithContentsOfFile:WALLPAPER_PATH];
+    vlog(img ? @"image loaded" : @"image load failed");
+    return img;
+}
+
+static void paint(UIView *host, NSString *who) {
+    if (!host) { vlog([NSString stringWithFormat:@"%@: host nil", who]); return; }
+    UIImage *img = loadImg();
     if (!img) return;
-    
     dispatch_async(dispatch_get_main_queue(), ^{
-        for (UIView *sub in host.subviews) {
-            if (sub.tag == 999999) [sub removeFromSuperview];
+        for (UIView *v in host.subviews) {
+            if (v.tag == 777777) [v removeFromSuperview];
         }
-        
         UIImageView *iv = [[UIImageView alloc] initWithFrame:host.bounds];
         iv.image = img;
         iv.contentMode = UIViewContentModeScaleAspectFill;
         iv.clipsToBounds = YES;
         iv.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        iv.tag = 999999;
+        iv.tag = 777777;
         iv.userInteractionEnabled = NO;
-        
         [host insertSubview:iv atIndex:0];
-        NSLog(@"[VibeTendies] Image attached to %@ (%@)", host, tag);
+        vlog([NSString stringWithFormat:@"painted in %@", who]);
     });
 }
 
 %hook SBFWallpaperView
 - (void)didMoveToWindow {
     %orig;
-    NSLog(@"[VibeTendies] SBFWallpaperView didMoveToWindow");
-    attachImageToView(self, @"SBFWallpaperView");
-}
-%end
-
-%hook SBIconController
-- (void)viewDidAppear:(BOOL)animated {
-    %orig;
-    NSLog(@"[VibeTendies] SBIconController viewDidAppear");
-    attachImageToView([self view], @"SBIconController");
+    vlog(@"SBFWallpaperView didMoveToWindow");
+    paint(self, @"SBFWallpaperView");
 }
 %end
 
 %hook SBWallpaperController
-- (void)viewDidAppear:(BOOL)animated {
+- (void)viewDidAppear:(BOOL)a {
     %orig;
-    NSLog(@"[VibeTendies] SBWallpaperController viewDidAppear");
-    attachImageToView([self view], @"SBWallpaperController");
+    vlog(@"SBWallpaperController viewDidAppear");
+    paint([self view], @"SBWallpaperController");
+}
+%end
+
+%hook SBIconController
+- (void)viewDidAppear:(BOOL)a {
+    %orig;
+    vlog(@"SBIconController viewDidAppear");
+    paint([self view], @"SBIconController");
 }
 %end
 
 %ctor {
-    NSLog(@"[VibeTendies] Constructor fired");
-    gImage = nil;
+    vlog(@"=== constructor ===");
 }

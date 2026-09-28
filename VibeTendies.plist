@@ -1,9 +1,7 @@
 {
     Filter = {
-        Classes = (
-            SBFWallpaperView,
-            SBIconController,
-            SBWallpaperController
+        Bundles = (
+            com.apple.springboard
         );
     };
 }
