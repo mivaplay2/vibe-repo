@@ -1,4 +1,68 @@
 Package: com.vibe.vibetendies
+Version: 0.0.1-1+debug
+Architecture: iphoneos-arm64
+Maintainer: vibe_coder
+Installed-Size: 212
+Depends: mobilesubstrate, preferenceloader
+Filename: ./debs/com.vibe.vibetendies_0.0.1-1+debug_iphoneos-arm64.deb
+Size: 10692
+MD5sum: 367b9cb14c0af587c501fc95a765ce03
+SHA1: 52a2f9fe9c2a133fb34154ffa32b117ef36046bd
+SHA256: ce44feaacb1464592a2af37bae300b94dce5f1ff9b107829de6d1a41748c2fe9
+Section: Tweaks
+Description: Apply .tendies files from Settings
+Author: vibe_coder
+Name: VibeTendies
+
+Package: com.vibe.vibetendies
+Version: 0.0.1-2+debug
+Architecture: iphoneos-arm64
+Maintainer: vibe_coder
+Installed-Size: 212
+Depends: mobilesubstrate, preferenceloader
+Filename: ./debs/com.vibe.vibetendies_0.0.1-2+debug_iphoneos-arm64.deb
+Size: 11898
+MD5sum: 5f6d4bd85a55fb7abc8404829d669d22
+SHA1: 2e23d9ec9c4d4176d16d80ee09b607b7bd23567c
+SHA256: 870b863366d290de57af8499cf89d1c38cdeff56be667524e97c2ecc05650e32
+Section: Tweaks
+Description: Apply .tendies files from Settings
+Author: vibe_coder
+Name: VibeTendies
+
+Package: com.vibe.vibetendies
+Version: 0.0.1-3+debug
+Architecture: iphoneos-arm64
+Maintainer: vibe_coder
+Installed-Size: 212
+Depends: mobilesubstrate, preferenceloader
+Filename: ./debs/com.vibe.vibetendies_0.0.1-3+debug_iphoneos-arm64.deb
+Size: 11888
+MD5sum: 157b8c34a74471010a18cf74b0e8923e
+SHA1: 52368521e2a9ce71b0518f4d961269b42eb69d5b
+SHA256: f8218f23967614d758ce296c9ca1d412c8517eab49ef76d4b85c8e047faa26c0
+Section: Tweaks
+Description: Apply .tendies files from Settings
+Author: vibe_coder
+Name: VibeTendies
+
+Package: com.vibe.vibetendies
+Version: 0.0.1-4+debug
+Architecture: iphoneos-arm64
+Maintainer: vibe_coder
+Installed-Size: 216
+Depends: mobilesubstrate, preferenceloader
+Filename: ./debs/com.vibe.vibetendies_0.0.1-4+debug_iphoneos-arm64.deb
+Size: 11964
+MD5sum: b63ca8439048895283cdd4b8103990bc
+SHA1: 78a18c2c4c8fbdab6a16358a14172ae5e7a8e35f
+SHA256: f18ba2f74f55d66e6b56ced06bb3b831001d4d6651c6d89ee92e501449b74836
+Section: Tweaks
+Description: Apply .tendies files from Settings
+Author: vibe_coder
+Name: VibeTendies
+
+Package: com.vibe.vibetendies
 Version: 0.0.1-5+debug
 Architecture: iphoneos-arm64
 Maintainer: vibe_coder
@@ -12,5 +76,21 @@ SHA256: db24eaa0efe9750770a10434cbcd3ca95ea0fcadfc3406ea20525668b20e043b
 Section: Tweaks
 Description: Apply .tendies files from Settings
 Author: vibe_coder
+Name: VibeTendies
+
+Package: com.vibe.vibetendies
+Version: 0.0.2-1+debug
+Architecture: iphoneos-arm64
+Maintainer: vibe
+Installed-Size: 216
+Depends: mobilesubstrate
+Filename: ./debs/com.vibe.vibetendies_0.0.2-1+debug_iphoneos-arm64.deb
+Size: 14022
+MD5sum: 35488baa783417ce73a81f41c1677299
+SHA1: ce451fe8629f5f4ef8ac15bec00d085eb5b13844
+SHA256: 2d584164d2cf1fe8e62680150a5a823e928234a67ce53a7e4dbca88a04bc9178
+Section: Tweaks
+Description: Overlay wallpaper tweak
+Author: vibe
 Name: VibeTendies
 

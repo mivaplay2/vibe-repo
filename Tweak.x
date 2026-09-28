@@ -1,57 +1,77 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 
-#define TENDIES_PATH @"/var/mobile/Library/Application Support/VibeTendies"
+#define TENDIES_DIR @"/var/mobile/Library/Application Support/VibeTendies"
+#define WALLPAPER_PATH @"/var/mobile/Library/Application Support/VibeTendies/wallpaper.png"
 
-static UIWindow *overlayWindow = nil;
-static CALayer *camlLayer = nil;
+static UIWindow *gOverlay = nil;
 
-// Загружаем CAML-файл через приватный фреймворк
-static CALayer *loadCAMLLayer(NSString *camlPath) {
-    if (![[NSFileManager defaultManager] fileExistsAtPath:camlPath]) return nil;
-    
-    // CAML загружается через CAAnimation
-    NSData *data = [NSData dataWithContentsOfFile:camlPath];
-    if (!data) return nil;
-    
-    // Пробуем создать слой из CAML через Core Animation
-    // В iOS CAML-файлы рендерятся через CAStateController
-    Class CAStateController = NSClassFromString(@"CAStateController");
-    if (!CAStateController) return nil;
-    
-    CALayer *layer = [CALayer layer];
-    layer.frame = [UIScreen mainScreen].bounds;
-    
-    id controller = [[CAStateController alloc] initWithLayer:layer];
-    if (controller) {
-        // Загружаем состояния из CAML
-        [controller performSelector:@selector(setState:ofLayer:) withObject:data withObject:layer];
+static void createTendiesDir(void) {
+    if (![[NSFileManager defaultManager] fileExistsAtPath:TENDIES_DIR]) {
+        [[NSFileManager defaultManager] createDirectoryAtPath:TENDIES_DIR
+                                  withIntermediateDirectories:YES
+                                                   attributes:nil
+                                                        error:nil];
     }
-    
-    return layer;
 }
 
-// Показываем overlay с CAML-слоем
-static void showOverlayWithCAMLLayer(CALayer *layer) {
-    if (!layer) return;
+static void showWallpaperOverlay(void) {
+    NSLog(@"[VibeTendies] showWallpaperOverlay called");
+    
+    if (![[NSFileManager defaultManager] fileExistsAtPath:WALLPAPER_PATH]) {
+        NSLog(@"[VibeTendies] No wallpaper at %@", WALLPAPER_PATH);
+        return;
+    }
+    
+    UIImage *img = [UIImage imageWithContentsOfFile:WALLPAPER_PATH];
+    if (!img) {
+        NSLog(@"[VibeTendies] Failed to load image");
+        return;
+    }
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (overlayWindow) {
-            [overlayWindow removeFromSuperview];
-            overlayWindow = nil;
+        if (gOverlay) {
+            [gOverlay removeFromSuperview];
+            gOverlay = nil;
         }
         
-        overlayWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-        overlayWindow.windowLevel = UIWindowLevelAlert + 1;
-        overlayWindow.backgroundColor = [UIColor clearColor];
-        overlayWindow.userInteractionEnabled = NO;
+        // Ищем активный UIWindowScene
+        UIWindowScene *targetScene = nil;
+        for (UIScene *s in [UIApplication sharedApplication].connectedScenes) {
+            if ([s isKindOfClass:[UIWindowScene class]]) {
+                UIWindowScene *ws = (UIWindowScene *)s;
+                if (ws.activationState == UISceneActivationStateForegroundActive) {
+                    targetScene = ws;
+                    break;
+                }
+                if (!targetScene) targetScene = ws;
+            }
+        }
         
-        UIView *containerView = [[UIView alloc] initWithFrame:overlayWindow.bounds];
-        containerView.backgroundColor = [UIColor clearColor];
-        [containerView.layer addSublayer:layer];
+        if (!targetScene) {
+            NSLog(@"[VibeTendies] No UIWindowScene found");
+            return;
+        }
         
-        [overlayWindow addSubview:containerView];
-        overlayWindow.hidden = NO;
+        gOverlay = [[UIWindow alloc] initWithWindowScene:targetScene];
+        gOverlay.frame = targetScene.coordinateSpace.bounds;
+        gOverlay.windowLevel = 10000;
+        gOverlay.backgroundColor = [UIColor clearColor];
+        gOverlay.userInteractionEnabled = NO;
+        gOverlay.rootViewController = [[UIViewController alloc] init];
+        gOverlay.rootViewController.view.backgroundColor = [UIColor clearColor];
+        gOverlay.hidden = NO;
+        
+        UIImageView *iv = [[UIImageView alloc] initWithFrame:gOverlay.bounds];
+        iv.image = img;
+        iv.contentMode = UIViewContentModeScaleAspectFill;
+        iv.clipsToBounds = YES;
+        iv.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        iv.userInteractionEnabled = NO;
+        
+        [gOverlay.rootViewController.view addSubview:iv];
+        
+        NSLog(@"[VibeTendies] Overlay shown successfully");
     });
 }
 
@@ -59,18 +79,39 @@ static void showOverlayWithCAMLLayer(CALayer *layer) {
 
 - (void)applicationDidFinishLaunching:(id)application {
     %orig;
+    NSLog(@"[VibeTendies] SpringBoard didFinishLaunching");
+    createTendiesDir();
     
-    // Ищем CAML-файл в папке твика
-    NSString *camlPath = [TENDIES_PATH stringByAppendingPathComponent:@"wallpaper.caml"];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:camlPath]) {
-        CALayer *layer = loadCAMLLayer(camlPath);
-        if (layer) {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)),
-                           dispatch_get_main_queue(), ^{
-                showOverlayWithCAMLLayer(layer);
-            });
-        }
-    }
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(vibe_onUnlock)
+                                                 name:@"SBLockScreenDidUnlockNotification"
+                                               object:nil];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)),
+                   dispatch_get_main_queue(), ^{
+        showWallpaperOverlay();
+    });
 }
 
+- (void)vibe_onUnlock {
+    NSLog(@"[VibeTendies] Unlock detected, refreshing overlay");
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)),
+                   dispatch_get_main_queue(), ^{
+        showWallpaperOverlay();
+    });
+}
+
+%end
+
+// Резервный хук — на случай, если didFinishLaunching не сработает
+%hook SBUIController
+- (void)finishLaunching {
+    %orig;
+    NSLog(@"[VibeTendies] SBUIController finishLaunching");
+    createTendiesDir();
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)),
+                   dispatch_get_main_queue(), ^{
+        showWallpaperOverlay();
+    });
+}
 %end

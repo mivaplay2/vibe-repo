@@ -15,29 +15,32 @@ extern char **environ;
     if (!_specifiers) {
         NSMutableArray *specs = [NSMutableArray new];
         
-        PSSpecifier *group = [PSSpecifier groupSpecifierWithName:@"VibeTendies"];
-        [group setProperty:@"Импортируйте .tendies файл для наложения обоев" forKey:@"footerText"];
-        [specs addObject:group];
+        PSSpecifier *g1 = [PSSpecifier groupSpecifierWithName:@"VibeTendies"];
+        [g1 setProperty:@"Выберите картинку — она наложится поверх обоев. После выбора сделайте Respring." forKey:@"footerText"];
+        [specs addObject:g1];
         
-        PSSpecifier *selectBtn = [PSSpecifier preferenceSpecifierNamed:@"Импортировать .tendies"
-                                                                target:self
-                                                                   set:nil
-                                                                   get:nil
-                                                                detail:nil
-                                                                  cell:PSButtonCell
-                                                                  edit:nil];
-        [selectBtn setProperty:NSStringFromSelector(@selector(selectFile)) forKey:@"action"];
-        [specs addObject:selectBtn];
+        PSSpecifier *sel = [PSSpecifier preferenceSpecifierNamed:@"Выбрать картинку"
+                                                         target:self
+                                                            set:nil
+                                                            get:nil
+                                                         detail:nil
+                                                           cell:PSButtonCell
+                                                           edit:nil];
+        [sel setProperty:NSStringFromSelector(@selector(selectFile)) forKey:@"action"];
+        [specs addObject:sel];
         
-        PSSpecifier *respringBtn = [PSSpecifier preferenceSpecifierNamed:@"Сделать Respring"
-                                                                target:self
-                                                                   set:nil
-                                                                   get:nil
-                                                                detail:nil
-                                                                  cell:PSButtonCell
-                                                                  edit:nil];
-        [respringBtn setProperty:NSStringFromSelector(@selector(doRespring)) forKey:@"action"];
-        [specs addObject:respringBtn];
+        PSSpecifier *g2 = [PSSpecifier groupSpecifierWithName:@""];
+        [specs addObject:g2];
+        
+        PSSpecifier *res = [PSSpecifier preferenceSpecifierNamed:@"Перезапустить SpringBoard"
+                                                         target:self
+                                                            set:nil
+                                                            get:nil
+                                                         detail:nil
+                                                           cell:PSButtonCell
+                                                           edit:nil];
+        [res setProperty:NSStringFromSelector(@selector(doRespring)) forKey:@"action"];
+        [specs addObject:res];
         
         _specifiers = specs;
     }
@@ -45,16 +48,16 @@ extern char **environ;
 }
 
 - (void)selectFile {
-    UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc]
-        initForOpeningContentTypes:@[[UTType typeWithIdentifier:@"public.data"]]];
-    picker.delegate = self;
-    [self presentViewController:picker animated:YES completion:nil];
+    UIDocumentPickerViewController *p = [[UIDocumentPickerViewController alloc]
+        initForOpeningContentTypes:@[UTTypeImage]];
+    p.delegate = self;
+    [self presentViewController:p animated:YES completion:nil];
 }
 
 - (void)documentPicker:(UIDocumentPickerViewController *)controller
     didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
-    NSURL *url = urls.firstObject;
-    if (!url) return;
+    NSURL *u = urls.firstObject;
+    if (!u) return;
     
     NSString *dir = @"/var/mobile/Library/Application Support/VibeTendies";
     [[NSFileManager defaultManager] createDirectoryAtPath:dir
@@ -62,33 +65,32 @@ extern char **environ;
                                                attributes:nil
                                                     error:nil];
     
-    // Копируем .tendies
-    NSString *destPath = [dir stringByAppendingPathComponent:@"wallpaper.tendies"];
-    [[NSFileManager defaultManager] removeItemAtPath:destPath error:nil];
-    [[NSFileManager defaultManager] copyItemAtPath:url.path toPath:destPath error:nil];
+    NSString *dst = [dir stringByAppendingPathComponent:@"wallpaper.png"];
+    [[NSFileManager defaultManager] removeItemAtPath:dst error:nil];
+    NSError *err = nil;
+    [[NSFileManager defaultManager] copyItemAtPath:u.path toPath:dst error:&err];
     
-    // Распаковываем ZIP
-    [self unzipTendies:destPath toDir:dir];
+    NSString *msg = err ? [NSString stringWithFormat:@"Ошибка: %@", err.localizedDescription]
+                        : @"Сохранено! Нажмите «Перезапустить SpringBoard».";
     
-    UIAlertController *alert = [UIAlertController
-        alertControllerWithTitle:@"VibeTendies"
-        message:@"Файл импортирован! Сделайте Respring."
-        preferredStyle:UIAlertControllerStyleAlert];
-    [alert addAction:[UIAlertAction actionWithTitle:@"Ок" style:UIAlertActionStyleDefault handler:nil]];
-    [self presentViewController:alert animated:YES completion:nil];
-}
-
-- (void)unzipTendies:(NSString *)zipPath toDir:(NSString *)dir {
-    // Простая распаковка через unzip (если установлен)
-    pid_t pid;
-    const char *args[] = {"unzip", "-o", [zipPath UTF8String], "-d", [dir UTF8String], NULL};
-    posix_spawn(&pid, "/usr/bin/unzip", NULL, NULL, (char *const *)args, environ);
+    UIAlertController *a = [UIAlertController alertControllerWithTitle:@"VibeTendies"
+                                                              message:msg
+                                                       preferredStyle:UIAlertControllerStyleAlert];
+    [a addAction:[UIAlertAction actionWithTitle:@"Ок" style:UIAlertActionStyleDefault handler:nil]];
+    [self presentViewController:a animated:YES completion:nil];
 }
 
 - (void)doRespring {
+    NSString *killall = @"/var/jb/usr/bin/killall";
+    if (![[NSFileManager defaultManager] fileExistsAtPath:killall]) {
+        killall = @"/usr/bin/killall";
+    }
+    if (![[NSFileManager defaultManager] fileExistsAtPath:killall]) {
+        return;
+    }
     pid_t pid;
     const char *args[] = {"killall", "-9", "SpringBoard", NULL};
-    posix_spawn(&pid, "/usr/bin/killall", NULL, NULL, (char *const *)args, environ);
+    posix_spawn(&pid, [killall UTF8String], NULL, NULL, (char *const *)args, environ);
 }
 
 @end
