@@ -94,3 +94,19 @@ Description: Overlay wallpaper tweak
 Author: vibe
 Name: VibeTendies
 
+Package: com.vibe.vibetendies
+Version: 0.0.3-1+debug
+Architecture: iphoneos-arm64
+Maintainer: vibe
+Installed-Size: 216
+Depends: mobilesubstrate, preferenceloader
+Filename: ./debs/com.vibe.vibetendies_0.0.3-1+debug_iphoneos-arm64.deb
+Size: 14012
+MD5sum: 8203d9df4031515735a920070624fc57
+SHA1: be1186d46ab6dabae2464579ea19a90fc67abb79
+SHA256: 435c941cc52fc6f49a67f67f322ae1d4b423baa3deaf7a8cb8d8e5a991f8e1b7
+Section: Tweaks
+Description: Overlay wallpaper tweak
+Author: vibe
+Name: VibeTendies
+
