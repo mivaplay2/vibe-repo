@@ -1,16 +1,16 @@
 Package: com.vibe.vibetendies
-Version: 0.1.3-1+debug
+Version: 1.0.0-1+debug
 Architecture: iphoneos-arm64
 Maintainer: vibe
-Installed-Size: 400
+Installed-Size: 396
 Depends: ellekit, preferenceloader
-Filename: ./debs/com.vibe.vibetendies_0.1.3-1+debug_iphoneos-arm64.deb
-Size: 15058
-MD5sum: 5b04af24a6fe24c2a397e118b3e8cf45
-SHA1: 713b2739a3418b15c83be97a086f5e8676518aeb
-SHA256: 8fd6feb643fad38e26543d9ae5ca8a8a159cd8d2b1b31adfefa2181e544c5b71
+Filename: ./debs/com.vibe.vibetendies_1.0.0-1+debug_iphoneos-arm64.deb
+Size: 16940
+MD5sum: b70b851f1524adb17e3492116d540f50
+SHA1: 0d1d019c6d7ece488c0be5bc01321a3b476b090d
+SHA256: 3558e4c4c196b7bb0a365d64057d0a3618b8585ca3efb210b537880060b3801c
 Section: Tweaks
-Description: Wallpaper overlay tweak (Zone-style)
+Description: Custom wallpaper tweak with .tendies import
 Author: vibe
 Name: VibeTendies
 
