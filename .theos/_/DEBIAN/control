@@ -1,0 +1,10 @@
+Package: com.vibe.vibetendies
+Name: VibeTendies
+Description: Overlay wallpaper tweak
+Maintainer: vibe
+Author: vibe
+Section: Tweaks
+Depends: ellekit, preferenceloader
+Architecture: iphoneos-arm64
+Version: 0.0.5-2+debug
+Installed-Size: 220

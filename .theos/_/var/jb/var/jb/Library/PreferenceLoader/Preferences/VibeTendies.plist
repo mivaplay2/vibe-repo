@@ -1,0 +1,9 @@
+{
+    entry = {
+        cell = PSLinkCell;
+        detail = "VibeTendiesController";
+        icon = "icon.png";
+        label = "VibeTendies";
+        isController = 1;
+    };
+}

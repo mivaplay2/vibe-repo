@@ -1,25 +1,23 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 
-#define TENDIES_DIR @"/var/mobile/Library/Application Support/VibeTendies"
 #define WALLPAPER_PATH @"/var/mobile/Library/Application Support/VibeTendies/wallpaper.png"
 
 static UIWindow *gOverlay = nil;
 
-static void createTendiesDir(void) {
-    if (![[NSFileManager defaultManager] fileExistsAtPath:TENDIES_DIR]) {
-        [[NSFileManager defaultManager] createDirectoryAtPath:TENDIES_DIR
-                                  withIntermediateDirectories:YES
-                                                   attributes:nil
-                                                        error:nil];
+static NSArray *activeWindows(void) {
+    for (UIScene *scene in [UIApplication sharedApplication].connectedScenes) {
+        if ([scene isKindOfClass:[UIWindowScene class]]) {
+            NSArray *w = ((UIWindowScene *)scene).windows;
+            if (w.count > 0) return w;
+        }
     }
+    return @[];
 }
 
-static void showWallpaperOverlay(void) {
-    NSLog(@"[VibeTendies] showWallpaperOverlay called");
-    
+static void showOverlay(void) {
     if (![[NSFileManager defaultManager] fileExistsAtPath:WALLPAPER_PATH]) {
-        NSLog(@"[VibeTendies] No wallpaper at %@", WALLPAPER_PATH);
+        NSLog(@"[VibeTendies] No wallpaper file");
         return;
     }
     
@@ -35,32 +33,22 @@ static void showWallpaperOverlay(void) {
             gOverlay = nil;
         }
         
-        // Ищем активный UIWindowScene
-        UIWindowScene *targetScene = nil;
-        for (UIScene *s in [UIApplication sharedApplication].connectedScenes) {
-            if ([s isKindOfClass:[UIWindowScene class]]) {
-                UIWindowScene *ws = (UIWindowScene *)s;
-                if (ws.activationState == UISceneActivationStateForegroundActive) {
-                    targetScene = ws;
-                    break;
-                }
-                if (!targetScene) targetScene = ws;
-            }
+        NSArray *windows = activeWindows();
+        UIWindow *host = nil;
+        for (UIWindow *w in windows) {
+            if (w.bounds.size.width > 0) { host = w; break; }
         }
-        
-        if (!targetScene) {
-            NSLog(@"[VibeTendies] No UIWindowScene found");
+        if (!host) {
+            NSLog(@"[VibeTendies] No host window");
             return;
         }
         
-        gOverlay = [[UIWindow alloc] initWithWindowScene:targetScene];
-        gOverlay.frame = targetScene.coordinateSpace.bounds;
-        gOverlay.windowLevel = 10000;
+        gOverlay = [[UIWindow alloc] initWithFrame:host.bounds];
+        gOverlay.windowLevel = UIWindowLevelAlert + 100;
         gOverlay.backgroundColor = [UIColor clearColor];
         gOverlay.userInteractionEnabled = NO;
         gOverlay.rootViewController = [[UIViewController alloc] init];
         gOverlay.rootViewController.view.backgroundColor = [UIColor clearColor];
-        gOverlay.hidden = NO;
         
         UIImageView *iv = [[UIImageView alloc] initWithFrame:gOverlay.bounds];
         iv.image = img;
@@ -68,50 +56,28 @@ static void showWallpaperOverlay(void) {
         iv.clipsToBounds = YES;
         iv.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         iv.userInteractionEnabled = NO;
-        
         [gOverlay.rootViewController.view addSubview:iv];
         
-        NSLog(@"[VibeTendies] Overlay shown successfully");
+        gOverlay.hidden = NO;
+        NSLog(@"[VibeTendies] Overlay SHOWN");
     });
 }
 
-%hook SpringBoard
-
-- (void)applicationDidFinishLaunching:(id)application {
-    %orig;
-    NSLog(@"[VibeTendies] SpringBoard didFinishLaunching");
-    createTendiesDir();
+%ctor {
+    NSLog(@"[VibeTendies] Constructor fired");
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(vibe_onUnlock)
-                                                 name:@"SBLockScreenDidUnlockNotification"
-                                               object:nil];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)),
+                   dispatch_get_main_queue(), ^{
+        showOverlay();
+    });
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)),
-                   dispatch_get_main_queue(), ^{
-        showWallpaperOverlay();
-    });
+    [[NSNotificationCenter defaultCenter] addObserverForName:@"SBLockScreenDidUnlockNotification"
+                                                      object:nil
+                                                       queue:[NSOperationQueue mainQueue]
+                                                  usingBlock:^(NSNotification *note) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)),
+                       dispatch_get_main_queue(), ^{
+            showOverlay();
+        });
+    }];
 }
-
-- (void)vibe_onUnlock {
-    NSLog(@"[VibeTendies] Unlock detected, refreshing overlay");
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)),
-                   dispatch_get_main_queue(), ^{
-        showWallpaperOverlay();
-    });
-}
-
-%end
-
-// Резервный хук — на случай, если didFinishLaunching не сработает
-%hook SBUIController
-- (void)finishLaunching {
-    %orig;
-    NSLog(@"[VibeTendies] SBUIController finishLaunching");
-    createTendiesDir();
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)),
-                   dispatch_get_main_queue(), ^{
-        showWallpaperOverlay();
-    });
-}
-%end
