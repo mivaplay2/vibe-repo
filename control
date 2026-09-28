@@ -1,0 +1,9 @@
+Package: com.vibe.vibetendies
+Name: VibeTendies
+Version: 0.0.1
+Architecture: iphoneos-arm64
+Description: Apply .tendies files from Settings
+Maintainer: vibe_coder
+Author: vibe_coder
+Section: Tweaks
+Depends: mobilesubstrate, preferenceloader
