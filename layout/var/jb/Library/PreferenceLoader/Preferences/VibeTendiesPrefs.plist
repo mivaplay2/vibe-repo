@@ -1,0 +1,8 @@
+{
+    entry = {
+        cell = PSLinkCell;
+        bundle = "VibeTendiesPrefs";
+        label = "VibeTendies";
+        isController = 1;
+    };
+}

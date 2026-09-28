@@ -1,14 +1,14 @@
 Package: com.vibe.vibetendies
-Version: 0.0.9-1+debug
+Version: 0.1.0-1+debug
 Architecture: iphoneos-arm64
 Maintainer: vibe
-Installed-Size: 220
+Installed-Size: 396
 Depends: ellekit, preferenceloader
-Filename: ./debs/com.vibe.vibetendies_0.0.9-1+debug_iphoneos-arm64.deb
-Size: 12290
-MD5sum: 5431e3010db1f02730cb73c5325c58b0
-SHA1: 448decdb6e2c6a7b036fa06bddc1d3a48cccc7c7
-SHA256: b6514646b70fda53392fef56d4f02d39572d0604a6c1824dbe1464ce7ca87a96
+Filename: ./debs/com.vibe.vibetendies_0.1.0-1+debug_iphoneos-arm64.deb
+Size: 13804
+MD5sum: 6d1bf03af056f220e6115c53b83019f0
+SHA1: 559c26e665da4895d1db0f3e7bdbb3ecfdb047cb
+SHA256: a97d39e756b65fcfbe373638562518a95bcef5ed69ed7b971eb7b8583fc615fa
 Section: Tweaks
 Description: Wallpaper overlay tweak
 Author: vibe

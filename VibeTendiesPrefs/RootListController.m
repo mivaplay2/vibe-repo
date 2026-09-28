@@ -1,22 +1,17 @@
-#import <UIKit/UIKit.h>
-#import <Preferences/PSListController.h>
-#import <Preferences/PSSpecifier.h>
+#import "RootListController.h"
 #import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #import <spawn.h>
 
 extern char **environ;
 
-@interface VibeTendiesController : PSListController <UIDocumentPickerDelegate>
-@end
-
-@implementation VibeTendiesController
+@implementation RootListController
 
 - (NSArray *)specifiers {
     if (!_specifiers) {
         NSMutableArray *specs = [NSMutableArray new];
         
         PSSpecifier *g1 = [PSSpecifier groupSpecifierWithName:@"VibeTendies"];
-        [g1 setProperty:@"Выберите картинку — она наложится поверх обоев. После выбора сделайте Respring." forKey:@"footerText"];
+        [g1 setProperty:@"Выберите картинку — она наложится поверх обоев. После выбора нажмите «Перезапустить SpringBoard»." forKey:@"footerText"];
         [specs addObject:g1];
         
         PSSpecifier *sel = [PSSpecifier preferenceSpecifierNamed:@"Выбрать картинку"
@@ -84,9 +79,6 @@ extern char **environ;
     NSString *killall = @"/var/jb/usr/bin/killall";
     if (![[NSFileManager defaultManager] fileExistsAtPath:killall]) {
         killall = @"/usr/bin/killall";
-    }
-    if (![[NSFileManager defaultManager] fileExistsAtPath:killall]) {
-        return;
     }
     pid_t pid;
     const char *args[] = {"killall", "-9", "SpringBoard", NULL};
