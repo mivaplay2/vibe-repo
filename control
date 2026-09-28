@@ -1,6 +1,6 @@
 Package: com.vibe.vibetendies
 Name: VibeTendies
-Version: 0.0.8
+Version: 0.0.9
 Architecture: iphoneos-arm64
 Description: Wallpaper overlay tweak
 Maintainer: vibe
