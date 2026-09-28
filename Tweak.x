@@ -3,6 +3,16 @@
 
 #define WALLPAPER_PATH @"/var/mobile/Library/Application Support/VibeTendies/wallpaper.png"
 
+// ==== Объявления классов SpringBoard ====
+@interface SBFWallpaperView : UIView
+@end
+
+@interface SBIconController : UIViewController
+@end
+
+@interface SBWallpaperController : UIViewController
+@end
+
 static UIImage *gImage = nil;
 
 static UIImage *loadWallpaper(void) {
@@ -51,7 +61,7 @@ static void attachImageToView(UIView *host, NSString *tag) {
 - (void)viewDidAppear:(BOOL)animated {
     %orig;
     NSLog(@"[VibeTendies] SBIconController viewDidAppear");
-    attachImageToView(self.view, @"SBIconController");
+    attachImageToView([self view], @"SBIconController");
 }
 %end
 
@@ -59,7 +69,7 @@ static void attachImageToView(UIView *host, NSString *tag) {
 - (void)viewDidAppear:(BOOL)animated {
     %orig;
     NSLog(@"[VibeTendies] SBWallpaperController viewDidAppear");
-    attachImageToView(self.view, @"SBWallpaperController");
+    attachImageToView([self view], @"SBWallpaperController");
 }
 %end
 
