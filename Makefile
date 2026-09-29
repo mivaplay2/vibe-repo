@@ -14,12 +14,5 @@ SUBPROJECTS += VibeTendiesPrefs
 include $(THEOS_MAKE_PATH)/tweak.mk
 include $(THEOS_MAKE_PATH)/aggregate.mk
 
-# Конвертируем plist в бинарный прямо перед упаковкой
-before-package::
-	@echo "[VibeTendies] Converting plists to binary..."
-	@find .theos/_ -name "*.plist" ! -name "Info.plist" | while read P; do \
-		head -c 1 "$$P" | grep -q "{" && plistutil -i "$$P" -o "$$P.bin" -f bin && mv "$$P.bin" "$$P" || true; \
-	done
-
 after-install::
 	install.exec "killall -9 SpringBoard Preferences"
