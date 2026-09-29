@@ -1,19 +1,18 @@
 #!/bin/bash
-echo "[VibeTendies] postinst: converting plists to binary..."
 
-# Конвертируем фильтр твика
+# Конвертируем plist в binary (нужно для ElleKit)
 for P in /var/jb/Library/MobileSubstrate/DynamicLibraries/VibeTendies.plist \
-         /var/jb/usr/lib/TweakInject/VibeTendies.plist; do
+         /var/jb/usr/lib/TweakInject/VibeTendies.plist \
+         /var/jb/Library/PreferenceLoader/Preferences/VibeTendiesPrefs.plist; do
     if [ -f "$P" ]; then
         /var/jb/usr/bin/plistutil -i "$P" -o "$P.bin" -f bin 2>/dev/null && mv "$P.bin" "$P"
     fi
 done
 
-# Конвертируем PreferenceLoader plist
-P2=/var/jb/Library/PreferenceLoader/Preferences/VibeTendiesPrefs.plist
-if [ -f "$P2" ]; then
-    /var/jb/usr/bin/plistutil -i "$P2" -o "$P2.bin" -f bin 2>/dev/null && mv "$P2.bin" "$P2"
-fi
+# Даём права на папку и картинку
+mkdir -p "/var/mobile/Library/Application Support/VibeTendies"
+chown -R mobile:mobile "/var/mobile/Library/Application Support/VibeTendies" 2>/dev/null
+chmod 755 "/var/mobile/Library/Application Support/VibeTendies"
+chmod 644 "/var/mobile/Library/Application Support/VibeTendies/wallpaper.png" 2>/dev/null
 
-echo "[VibeTendies] Done."
 exit 0
