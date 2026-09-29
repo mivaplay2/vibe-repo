@@ -1,0 +1,16 @@
+Package: com.vibe.vibetendies
+Version: 1.0.2-1+debug
+Architecture: iphoneos-arm64
+Maintainer: vibe
+Installed-Size: 376
+Depends: ellekit, preferenceloader
+Filename: ./debs/com.vibe.vibetendies_1.0.2-1+debug_iphoneos-arm64.deb
+Size: 18264
+MD5sum: a70693a56344f8e4180da50de3b31835
+SHA1: 592d698ed23062d63651384f2852fd1ad8f80d6f
+SHA256: 3936d4173977b4cda84b4a53eb7c6820ee43e962a66e4e516efeb510c20c1dc2
+Section: Tweaks
+Description: Wallpaper tweak with HEIC and .tendies support
+Author: vibe
+Name: VibeTendies
+

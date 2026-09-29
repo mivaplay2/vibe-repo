@@ -106,7 +106,7 @@ extern char **environ;
     if (status != 0) { 
         // Пробуем /usr/bin/unzip
         posix_spawn(&pid, "/usr/bin/unzip", NULL, NULL, (char *const *)args, environ);
-        waitpid(&pid, &status, 0);
+        waitpid(pid, &status, 0);
     }
     
     if (status != 0) { [self showAlert:@"Не удалось распаковать .tendies"]; return; }
