@@ -1,18 +1,22 @@
 #!/bin/bash
 
-# Конвертируем plist в binary (нужно для ElleKit)
-for P in /var/jb/Library/MobileSubstrate/DynamicLibraries/VibeTendies.plist \
-         /var/jb/usr/lib/TweakInject/VibeTendies.plist \
-         /var/jb/Library/PreferenceLoader/Preferences/VibeTendiesPrefs.plist; do
-    if [ -f "$P" ]; then
-        /var/jb/usr/bin/plistutil -i "$P" -o "$P.bin" -f bin 2>/dev/null && mv "$P.bin" "$P"
-    fi
-done
+echo "[VibeTendies] Post-install..."
 
-# Даём права на папку и картинку
+# Права на бинарные plist
+chmod 644 /var/jb/Library/MobileSubstrate/DynamicLibraries/VibeTendies.plist 2>/dev/null
+chmod 644 /var/jb/usr/lib/TweakInject/VibeTendies.plist 2>/dev/null
+chmod 644 /var/jb/Library/PreferenceLoader/Preferences/VibeTendiesPrefs.plist 2>/dev/null
+
+# Права на dylib
+chmod 755 /var/jb/Library/MobileSubstrate/DynamicLibraries/VibeTendies.dylib 2>/dev/null
+chmod 755 /var/jb/usr/lib/TweakInject/VibeTendies.dylib 2>/dev/null
+
+# Права на bundle
+chmod -R 755 /var/jb/Library/PreferenceBundles/VibeTendiesPrefs.bundle 2>/dev/null
+
+# Папка для обоев
 mkdir -p "/var/mobile/Library/Application Support/VibeTendies"
 chown -R mobile:mobile "/var/mobile/Library/Application Support/VibeTendies" 2>/dev/null
-chmod 755 "/var/mobile/Library/Application Support/VibeTendies"
-chmod 644 "/var/mobile/Library/Application Support/VibeTendies/wallpaper.png" 2>/dev/null
 
+echo "[VibeTendies] Done."
 exit 0
