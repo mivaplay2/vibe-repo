@@ -1,8 +1,8 @@
 Package: com.vibe.vibetendies
 Name: VibeTendies
-Version: 1.0.2
+Version: 1.0.3
 Architecture: iphoneos-arm64
-Description: Wallpaper tweak with HEIC and .tendies support
+Description: Wallpaper tweak
 Maintainer: vibe
 Author: vibe
 Section: Tweaks
