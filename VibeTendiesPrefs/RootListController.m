@@ -106,7 +106,6 @@ extern char **environ;
     [[NSFileManager defaultManager] createDirectoryAtPath:tmpDir
                               withIntermediateDirectories:YES attributes:nil error:nil];
     
-    // Копируем .tendies во временный .zip
     NSString *tmpZip = [NSTemporaryDirectory() stringByAppendingPathComponent:@"tendies.zip"];
     [[NSFileManager defaultManager] removeItemAtPath:tmpZip error:nil];
     [[NSFileManager defaultManager] copyItemAtPath:src toPath:tmpZip error:nil];
@@ -119,24 +118,34 @@ extern char **environ;
     posix_spawn(&pid, [unzip UTF8String], NULL, NULL, (char *const *)args, environ);
     int status; waitpid(pid, &status, 0);
     
-    if (status != 0) { [self showAlert:@"Не удалось распаковать"]; return; }
+    if (status != 0) { [self showAlert:@"Не удалось распаковать .tendies"]; return; }
     
-    NSString *found = nil;
+    NSString *bestPath = nil;
+    unsigned long long bestSize = 0;
+    
     NSDirectoryEnumerator *en = [[NSFileManager defaultManager] enumeratorAtPath:tmpDir];
     for (NSString *f in en) {
         NSString *e = [[f pathExtension] lowercaseString];
-        if ([e isEqualToString:@"png"] || [e isEqualToString:@"jpg"] || [e isEqualToString:@"jpeg"] || [e isEqualToString:@"heic"]) {
-            found = [tmpDir stringByAppendingPathComponent:f];
-            break;
+        if ([e isEqualToString:@"png"] || [e isEqualToString:@"jpg"] || 
+            [e isEqualToString:@"jpeg"] || [e isEqualToString:@"heic"]) {
+            NSString *fullPath = [tmpDir stringByAppendingPathComponent:f];
+            NSDictionary *attrs = [[NSFileManager defaultManager] attributesOfItemAtPath:fullPath error:nil];
+            unsigned long long size = [attrs fileSize];
+            if (size > bestSize) {
+                bestSize = size;
+                bestPath = fullPath;
+            }
         }
     }
     
-    if (!found) {
-        [self showAlert:@"В .tendies нет картинки. Это файл-дескриптор, а не обои. Используй PNG."];
+    if (!bestPath) {
+        [self showAlert:@"В .tendies нет картинки"];
         return;
     }
     
-    UIImage *img = [UIImage imageWithContentsOfFile:found];
+    NSLog(@"[VibeTendies] Picked: %@ (%llu KB)", bestPath, bestSize/1024);
+    
+    UIImage *img = [UIImage imageWithContentsOfFile:bestPath];
     if (!img) { [self showAlert:@"Не удалось прочитать картинку"]; return; }
     
     NSString *dir = @"/var/mobile/Library/Application Support/VibeTendies";
@@ -147,10 +156,8 @@ extern char **environ;
     
     NSData *png = UIImagePNGRepresentation(img);
     [png writeToFile:dst atomically:YES];
-    [self showAlert:@"Картинка из .tendies сохранена! Жми Respring."];
+    [self showAlert:[NSString stringWithFormat:@"Готово! %llu KB. Жми Respring.", bestSize/1024]];
 }
-
-#pragma mark - Respring
 
 - (void)doRespring {
     NSString *k = @"/var/jb/usr/bin/killall";
