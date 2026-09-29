@@ -12,38 +12,41 @@ extern char **environ;
         NSMutableArray *specs = [NSMutableArray new];
         
         PSSpecifier *g1 = [PSSpecifier groupSpecifierWithName:@"VibeTendies"];
-        [g1 setProperty:@"Выберите картинку или .tendies файл." forKey:@"footerText"];
+        [g1 setProperty:@"Выберите картинку или .tendies файл" forKey:@"footerText"];
         [specs addObject:g1];
         
-        PSSpecifier *selImg = [PSSpecifier preferenceSpecifierNamed:@"Выбрать картинку (PNG/JPG)"
-                                                         target:self
-                                                            set:nil
-                                                            get:nil
-                                                         detail:nil
-                                                           cell:PSButtonCell
-                                                           edit:nil];
-        [selImg setProperty:NSStringFromSelector(@selector(selectImage)) forKey:@"action"];
-        [specs addObject:selImg];
+        PSSpecifier *btn1 = [PSSpecifier preferenceSpecifierNamed:@"Выбрать картинку (PNG/JPG)"
+                                                           target:self
+                                                              set:nil
+                                                              get:nil
+                                                           detail:nil
+                                                             cell:PSButtonCell
+                                                             edit:nil];
+        btn1->action = @selector(selectImage);
+        [specs addObject:btn1];
         
-        PSSpecifier *selTen = [PSSpecifier preferenceSpecifierNamed:@"Импорт .tendies"
-                                                         target:self
-                                                            set:nil
-                                                            get:nil
-                                                         detail:nil
-                                                           cell:PSButtonCell
-                                                           edit:nil];
-        [selTen setProperty:NSStringFromSelector(@selector(selectTendies)) forKey:@"action"];
-        [specs addObject:selTen];
+        PSSpecifier *btn2 = [PSSpecifier preferenceSpecifierNamed:@"Импорт .tendies"
+                                                           target:self
+                                                              set:nil
+                                                              get:nil
+                                                           detail:nil
+                                                             cell:PSButtonCell
+                                                             edit:nil];
+        btn2->action = @selector(selectTendies);
+        [specs addObject:btn2];
         
-        PSSpecifier *res = [PSSpecifier preferenceSpecifierNamed:@"Перезапустить SpringBoard"
-                                                         target:self
-                                                            set:nil
-                                                            get:nil
-                                                         detail:nil
-                                                           cell:PSButtonCell
-                                                           edit:nil];
-        [res setProperty:NSStringFromSelector(@selector(doRespring)) forKey:@"action"];
-        [specs addObject:res];
+        PSSpecifier *g2 = [PSSpecifier groupSpecifierWithName:@""];
+        [specs addObject:g2];
+        
+        PSSpecifier *btn3 = [PSSpecifier preferenceSpecifierNamed:@"Перезапустить SpringBoard"
+                                                           target:self
+                                                              set:nil
+                                                              get:nil
+                                                           detail:nil
+                                                             cell:PSButtonCell
+                                                             edit:nil];
+        btn3->action = @selector(doRespring);
+        [specs addObject:btn3];
         
         _specifiers = specs;
     }
@@ -51,6 +54,7 @@ extern char **environ;
 }
 
 - (void)selectImage {
+    NSLog(@"[VibeTendies] selectImage");
     UIDocumentPickerViewController *p = [[UIDocumentPickerViewController alloc]
         initForOpeningContentTypes:@[UTTypeImage]];
     p.delegate = self;
@@ -58,6 +62,7 @@ extern char **environ;
 }
 
 - (void)selectTendies {
+    NSLog(@"[VibeTendies] selectTendies");
     UIDocumentPickerViewController *p = [[UIDocumentPickerViewController alloc]
         initForOpeningContentTypes:@[UTTypeData]];
     p.delegate = self;
@@ -71,9 +76,7 @@ extern char **environ;
     
     NSString *dir = @"/var/mobile/Library/Application Support/VibeTendies";
     [[NSFileManager defaultManager] createDirectoryAtPath:dir
-                              withIntermediateDirectories:YES
-                                               attributes:nil
-                                                    error:nil];
+                              withIntermediateDirectories:YES attributes:nil error:nil];
     NSString *dst = [dir stringByAppendingPathComponent:@"wallpaper.png"];
     NSString *ext = [[u.path pathExtension] lowercaseString];
     
@@ -83,7 +86,7 @@ extern char **environ;
         [[NSFileManager defaultManager] removeItemAtPath:dst error:nil];
         NSError *err = nil;
         [[NSFileManager defaultManager] copyItemAtPath:u.path toPath:dst error:&err];
-        [self showAlert:err ? err.localizedDescription : @"Сохранено! Жмите Respring."];
+        [self showAlert:err ? err.localizedDescription : @"Сохранено! Жми Respring."];
     }
 }
 
@@ -98,7 +101,7 @@ extern char **environ;
     posix_spawn(&pid, "/usr/bin/unzip", NULL, NULL, (char *const *)args, environ);
     int status; waitpid(pid, &status, 0);
     
-    if (status != 0) { [self showAlert:@"Не ZIP или ошибка распаковки"]; return; }
+    if (status != 0) { [self showAlert:@"Ошибка распаковки .tendies"]; return; }
     
     NSString *found = nil;
     NSDirectoryEnumerator *en = [[NSFileManager defaultManager] enumeratorAtPath:tmpDir];
@@ -109,20 +112,25 @@ extern char **environ;
             break;
         }
     }
-    if (!found) { [self showAlert:@"Картинка внутри не найдена"]; return; }
+    if (!found) {
+        [self showAlert:@"В .tendies нет PNG/JPG. Это дескриптор, не картинка."];
+        return;
+    }
     
     [[NSFileManager defaultManager] removeItemAtPath:dst error:nil];
     NSError *err = nil;
     [[NSFileManager defaultManager] copyItemAtPath:found toPath:dst error:&err];
-    [self showAlert:err ? err.localizedDescription : @"Импорт .tendies OK! Respring."];
+    [self showAlert:err ? err.localizedDescription : @"Картинка из .tendies сохранена! Жми Respring."];
 }
 
 - (void)showAlert:(NSString *)msg {
-    UIAlertController *a = [UIAlertController alertControllerWithTitle:@"VibeTendies"
-                                                              message:msg
-                                                       preferredStyle:UIAlertControllerStyleAlert];
-    [a addAction:[UIAlertAction actionWithTitle:@"Ок" style:UIAlertActionStyleDefault handler:nil]];
-    [self presentViewController:a animated:YES completion:nil];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIAlertController *a = [UIAlertController alertControllerWithTitle:@"VibeTendies"
+                                                                  message:msg
+                                                           preferredStyle:UIAlertControllerStyleAlert];
+        [a addAction:[UIAlertAction actionWithTitle:@"Ок" style:UIAlertActionStyleDefault handler:nil]];
+        [self presentViewController:a animated:YES completion:nil];
+    });
 }
 
 - (void)doRespring {

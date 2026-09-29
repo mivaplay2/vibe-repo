@@ -277,10 +277,10 @@ Maintainer: vibe
 Installed-Size: 412
 Depends: ellekit, preferenceloader
 Filename: ./debs/com.vibe.vibetendies_1.0.0-1+debug_iphoneos-arm64.deb
-Size: 17046
-MD5sum: e2b3d310fc34414c154316396f56bdf6
-SHA1: b41cb078e75179d09ccb91604255fb9f705978e3
-SHA256: 63393a23d95c62e236b95608073ccce05a899a1cc36feac3e52c5d243704ef64
+Size: 17734
+MD5sum: 32210dd601d58fe2be4fa81f62ca0eba
+SHA1: 1ef661381f0c5187a1bfd11884f8e997abbcc6e9
+SHA256: add418d94f13fa0b2335c5b2abab1d31092ecce428be08c9bde84effe20f69ef
 Section: Tweaks
 Description: Custom wallpaper tweak with .tendies import
 Author: vibe

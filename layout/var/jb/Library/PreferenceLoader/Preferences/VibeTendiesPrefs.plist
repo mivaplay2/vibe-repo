@@ -2,6 +2,8 @@
     entry = {
         cell = PSLinkCell;
         bundle = "VibeTendiesPrefs";
+        detail = "RootListController";
+        icon = "icon.png";
         label = "VibeTendies";
         isController = 1;
     };
