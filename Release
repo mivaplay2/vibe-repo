@@ -1,0 +1,14 @@
+Origin: Vibe Repo
+Label: Vibe Repo
+Suite: stable
+Version: 1.0
+Codename: ios
+Architectures: iphoneos-arm iphoneos-arm64
+Components: main
+Description: VibeWallpaper и другие твики от mivaplay2
+MD5Sum:
+ 5127a069cb050c0380310c85cb0b9d2c 518 Packages
+ 18a6193e529145b042e99ec523280f6e 394 Packages.bz2
+SHA256:
+ 80daa201246210d3adf94322625b520622f2fd53d98c6bde27bd8f26f7542639 518 Packages
+ 55afc193e53aeb600be3c8c080ad99857f571122b3b3ec9583d671c37c74a732 394 Packages.bz2
