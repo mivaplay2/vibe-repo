@@ -1,0 +1,16 @@
+Package: com.mivaplay2.vibewallpaper
+Version: 1.0.0-1+debug
+Architecture: iphoneos-arm64
+Maintainer: mivaplay2
+Installed-Size: 88
+Depends: mobilesubstrate
+Filename: debs/com.mivaplay2.vibewallpaper_1.0.0-1+debug_iphoneos-arm64.deb
+Size: 4486
+MD5sum: c7c6720e686e5be13c85e47f7383fc32
+SHA1: e495e9d3fab6b53535dcf4305557569cfcde96a9
+SHA256: 1af42acd0f20e7e121bd599ef5d303809845eb705fe4d8abcdfd71cde97c8173
+Section: Tweaks
+Description: Custom .tendies wallpaper injector for iOS 16+
+Author: mivaplay2
+Name: VibeWallpaper
+

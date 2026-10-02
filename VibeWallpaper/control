@@ -1,0 +1,9 @@
+Package: com.mivaplay2.vibewallpaper
+Name: VibeWallpaper
+Version: 1.0.0
+Architecture: iphoneos-arm64
+Description: Custom .tendies wallpaper injector for iOS 16+
+Maintainer: mivaplay2
+Author: mivaplay2
+Section: Tweaks
+Depends: mobilesubstrate
